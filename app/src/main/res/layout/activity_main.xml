@@ -6,24 +6,315 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <EditText
-        android:id="@+id/et_msg"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:inputType="text"
-        app:layout_constraintBottom_toBottomOf="parent"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_setting"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#ffffff"
+        android:elevation="3dp"
+        android:visibility="gone">
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/switch_auto_mode"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="64dp"
+            android:text="自动模式"
+            app:layout_constraintEnd_toEndOf="@+id/et_auto_mode"
+            app:layout_constraintStart_toStartOf="@+id/et_auto_mode"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <EditText
+            android:id="@+id/et_auto_mode"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="32dp"
+            android:layout_marginRight="32dp"
+            android:hint="输入自动周期，单位min"
+            android:inputType="number"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/et_wind"
+            app:layout_constraintTop_toBottomOf="@+id/switch_auto_mode" />
+
+        <EditText
+            android:id="@+id/et_wind"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="32dp"
+            android:layout_marginRight="32dp"
+            android:hint="输入风的温度"
+            android:inputType="number"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/et_water"
+            app:layout_constraintTop_toBottomOf="@+id/et_auto_mode" />
+
+        <EditText
+            android:id="@+id/et_water"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="32dp"
+            android:layout_marginRight="32dp"
+            android:hint="输入水的温度"
+            android:inputType="number"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/btn_set_temp"
+            app:layout_constraintTop_toBottomOf="@+id/et_wind" />
+
+        <Button
+            android:id="@+id/btn_set_temp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="32dp"
+            android:background="@color/colorPrimary"
+            android:text="设置温度"
+            android:textColor="#ffffff"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/et_water" />
+
+        <Button
+            android:id="@+id/btn_back"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="32dp"
+            android:background="@color/colorPrimary"
+            android:text="返回"
+            android:textColor="#ffffff"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/btn_set_temp" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:menu="@menu/menu_main" />
 
-    <Button
-        android:id="@+id/btn_send"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="发送"
-        app:layout_constraintEnd_toEndOf="@+id/et_msg"
-        app:layout_constraintStart_toStartOf="@+id/et_msg"
-        app:layout_constraintTop_toBottomOf="@+id/et_msg" />
+    <View
+        android:id="@+id/view_light"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:background="@drawable/bg_circle"
+        android:backgroundTint="#FF0000"
+        app:layout_constraintBottom_toBottomOf="@id/toolbar"
+        app:layout_constraintStart_toStartOf="@id/toolbar"
+        app:layout_constraintTop_toTopOf="@id/toolbar" />
+
+    <TextView
+        android:id="@+id/tv_num"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:elevation="3dp"
+        android:gravity="center"
+        android:textColor="#000000"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@+id/view_light"
+        app:layout_constraintEnd_toEndOf="@+id/view_light"
+        app:layout_constraintStart_toStartOf="@+id/view_light"
+        app:layout_constraintTop_toTopOf="@+id/view_light"
+        tools:text="1" />
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbar">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btn_1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="升背"
+                app:layout_constraintEnd_toEndOf="@+id/et_msg"
+                app:layout_constraintStart_toStartOf="@+id/et_msg"
+                app:layout_constraintTop_toBottomOf="@+id/et_msg" />
+
+            <Button
+                android:id="@+id/btn_2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="降背"
+                app:layout_constraintEnd_toEndOf="@+id/et_msg"
+                app:layout_constraintStart_toStartOf="@+id/et_msg"
+                app:layout_constraintTop_toBottomOf="@+id/et_msg" />
+
+            <Button
+                android:id="@+id/btn_3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="复位"
+                app:layout_constraintEnd_toEndOf="@+id/et_msg"
+                app:layout_constraintStart_toStartOf="@+id/et_msg"
+                app:layout_constraintTop_toBottomOf="@+id/et_msg" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btn_4"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="升腿"
+                app:layout_constraintEnd_toEndOf="@+id/et_msg"
+                app:layout_constraintStart_toStartOf="@+id/et_msg"
+                app:layout_constraintTop_toBottomOf="@+id/et_msg" />
+
+            <Button
+                android:id="@+id/btn_5"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="降腿"
+                app:layout_constraintEnd_toEndOf="@+id/et_msg"
+                app:layout_constraintStart_toStartOf="@+id/et_msg"
+                app:layout_constraintTop_toBottomOf="@+id/et_msg" />
+
+            <Button
+                android:id="@+id/btn_6"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="复位"
+                app:layout_constraintEnd_toEndOf="@+id/et_msg"
+                app:layout_constraintStart_toStartOf="@+id/et_msg"
+                app:layout_constraintTop_toBottomOf="@+id/et_msg" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btn_7"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="左翻"
+                app:layout_constraintEnd_toEndOf="@+id/et_msg"
+                app:layout_constraintStart_toStartOf="@+id/et_msg"
+                app:layout_constraintTop_toBottomOf="@+id/et_msg" />
+
+            <Button
+                android:id="@+id/btn_8"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="右翻"
+                app:layout_constraintEnd_toEndOf="@+id/et_msg"
+                app:layout_constraintStart_toStartOf="@+id/et_msg"
+                app:layout_constraintTop_toBottomOf="@+id/et_msg" />
+
+            <Button
+                android:id="@+id/btn_9"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="复位"
+                app:layout_constraintEnd_toEndOf="@+id/et_msg"
+                app:layout_constraintStart_toStartOf="@+id/et_msg"
+                app:layout_constraintTop_toBottomOf="@+id/et_msg" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btn_10"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="前"
+                app:layout_constraintEnd_toEndOf="@+id/et_msg"
+                app:layout_constraintStart_toStartOf="@+id/et_msg"
+                app:layout_constraintTop_toBottomOf="@+id/et_msg" />
+
+            <Button
+                android:id="@+id/btn_11"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="后"
+                app:layout_constraintEnd_toEndOf="@+id/et_msg"
+                app:layout_constraintStart_toStartOf="@+id/et_msg"
+                app:layout_constraintTop_toBottomOf="@+id/et_msg" />
+
+            <Button
+                android:id="@+id/btn_12"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="左"
+                app:layout_constraintEnd_toEndOf="@+id/et_msg"
+                app:layout_constraintStart_toStartOf="@+id/et_msg"
+                app:layout_constraintTop_toBottomOf="@+id/et_msg" />
+
+            <Button
+                android:id="@+id/btn_13"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="右"
+                app:layout_constraintEnd_toEndOf="@+id/et_msg"
+                app:layout_constraintStart_toStartOf="@+id/et_msg"
+                app:layout_constraintTop_toBottomOf="@+id/et_msg" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+
+            <Button
+                android:id="@+id/btn_14"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="如厕"
+                app:layout_constraintEnd_toEndOf="@+id/et_msg"
+                app:layout_constraintStart_toStartOf="@+id/et_msg"
+                app:layout_constraintTop_toBottomOf="@+id/et_msg" />
+
+            <Button
+                android:id="@+id/btn_15"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="冲洗"
+                app:layout_constraintEnd_toEndOf="@+id/et_msg"
+                app:layout_constraintStart_toStartOf="@+id/et_msg"
+                app:layout_constraintTop_toBottomOf="@+id/et_msg" />
+        </LinearLayout>
+
+    </LinearLayout>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

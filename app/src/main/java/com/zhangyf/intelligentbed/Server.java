@@ -1,11 +1,8 @@
 package com.zhangyf.intelligentbed;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.text.SimpleDateFormat;
@@ -69,7 +66,7 @@ public class Server {
                         String in = "";
                         do {
                             in = scanner.next();
-                            out.write(("" + in+"\n").getBytes("UTF-8"));
+                            out.write(("" + in + "\n").getBytes("UTF-8"));
                             out.flush();// 清空缓存区的内容
                         } while (!in.equals("q"));
                         scanner.close();
