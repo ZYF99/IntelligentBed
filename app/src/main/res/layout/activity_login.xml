@@ -21,7 +21,7 @@
         android:id="@+id/et_port"
         android:layout_width="300dp"
         android:layout_height="wrap_content"
-        android:inputType="text"
+        android:inputType="number"
         android:hint="请输入端口号"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

@@ -28,6 +28,8 @@ import java.net.Socket;
 
 public class MainActivity extends AppCompatActivity {
 
+    private Long quiteTime = System.currentTimeMillis();
+
     View view_light;
     ConstraintLayout clSetting;
     Button btnBack;
@@ -59,9 +61,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        String ip = getIntent().getStringExtra("ip");
-        String port = getIntent().getStringExtra("port");
-        initSocket(ip, port);
+        initSocket();
         view_light = findViewById(R.id.view_light);
         clSetting = findViewById(R.id.cl_setting);
         btnBack = findViewById(R.id.btn_back);
@@ -239,52 +239,48 @@ public class MainActivity extends AppCompatActivity {
     BufferedReader br;
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    public void initSocket(final String ip, final String port) {
+    public void initSocket() {
 
         new Thread(new Runnable() {
             @Override
             public void run() {
-                try {
-                    socket = new Socket(ip, Integer.parseInt(port));
-                    runOnUiThread(new Runnable() {
+                socket = MyApplication.instance.socket;
+                runOnUiThread(new Runnable() {
 
-                        @Override
-                        public void run() {
-                            //连接成功 指示灯绿色
-                            view_light.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
-                        }
-                    });
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            // 步骤3：通过输入流读取器对象 接收服务器发送过来的数据
-                            try {
-                                // 步骤1：创建输入流对象InputStream
-                                is = socket.getInputStream();
-                                // 步骤2：创建输入流读取器对象 并传入输入流对象
-                                // 该对象作用：获取服务器返回的数据
-                                isr = new InputStreamReader(is);
-                                br = new BufferedReader(isr);
-                                while (true) {
-                                    final String s = br.readLine();
-                                    MainActivity.this.runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            tvNum.setText(s);
-                                            //Toast.makeText(MainActivity.this, s, Toast.LENGTH_SHORT).show();
-                                        }
-                                    });
-                                }
-                            } catch (IOException e) {
-                                //连接断开 指示灯红色
-                                view_light.setBackgroundTintList(ColorStateList.valueOf(Color.RED));
-                                e.printStackTrace();
+                    @Override
+                    public void run() {
+                        //连接成功 指示灯绿色
+                        view_light.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
+                    }
+                });
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        // 步骤3：通过输入流读取器对象 接收服务器发送过来的数据
+                        try {
+                            // 步骤1：创建输入流对象InputStream
+                            is = socket.getInputStream();
+                            // 步骤2：创建输入流读取器对象 并传入输入流对象
+                            // 该对象作用：获取服务器返回的数据
+                            isr = new InputStreamReader(is);
+                            br = new BufferedReader(isr);
+                            while (true) {
+                                final String s = br.readLine();
+                                MainActivity.this.runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        tvNum.setText(s);
+                                        //Toast.makeText(MainActivity.this, s, Toast.LENGTH_SHORT).show();
+                                    }
+                                });
                             }
+                        } catch (IOException e) {
+                            //连接断开 指示灯红色
+                            view_light.setBackgroundTintList(ColorStateList.valueOf(Color.RED));
+                            e.printStackTrace();
                         }
-                    }).start();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                    }
+                }).start();
             }
         }).start();
 
@@ -331,6 +327,15 @@ public class MainActivity extends AppCompatActivity {
     public void onBackPressed() {
         if (clSetting.getVisibility() == View.VISIBLE) {
             clSetting.setVisibility(View.GONE);
+        } else {
+                if (System.currentTimeMillis() - quiteTime > 3000) {
+                    Toast.makeText(
+                            this,"再按一次退出", Toast.LENGTH_SHORT
+                    ).show();
+                    quiteTime = System.currentTimeMillis();
+                } else {
+                    finish();
+                }
         }
     }
 }
