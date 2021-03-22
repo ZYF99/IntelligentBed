@@ -26,4 +26,9 @@ public class Constants {
     //如厕/冲洗
     public static final String RUCE = "14";
     public static final String CHONGXI = "15";
+    public static final String DIRRST = "16";
+
+    //设置的流地址
+    public static String rtmpAddress_1 = "rtmp://58.200.131.2:1935/livetv/cctv5phd";
+    public static String rtmpAddress_2 = "rtmp://58.200.131.2:1935/livetv/cctv5phd";
 }

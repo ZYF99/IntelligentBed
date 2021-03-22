@@ -1,23 +1,21 @@
 package com.zhangyf.intelligentbed;
 
+import android.view.LayoutInflater;
+import android.widget.*;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
-import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
-import android.widget.CompoundButton;
-import android.widget.EditText;
-import android.widget.TextView;
-import android.widget.Toast;
+import androidx.viewpager.widget.ViewPager;
+import com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -25,6 +23,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -39,6 +39,8 @@ public class MainActivity extends AppCompatActivity {
     EditText etWind;
     EditText etWater;
     TextView tvNum;
+    TextView tvNumNew;
+    ViewPager vpVideo;
 
     Button btn1;
     Button btn2;
@@ -55,6 +57,15 @@ public class MainActivity extends AppCompatActivity {
     Button btn13;
     Button btn14;
     Button btn15;
+    Button btn16;
+    //StandardGSYVideoPlayer videoPlayer;
+    Switch switch_video;
+    EditText et_rtmp;
+    EditText et_rtmp_2;
+
+    VideoPagerAdapter videoPagerAdapter;
+
+    List<View> videoViewList = new ArrayList<>();
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
@@ -71,6 +82,15 @@ public class MainActivity extends AppCompatActivity {
         etWind = findViewById(R.id.et_wind);
         etWater = findViewById(R.id.et_water);
         tvNum = findViewById(R.id.tv_num);
+        tvNumNew = findViewById(R.id.tv_num_new);
+
+        vpVideo = findViewById(R.id.vp_video);
+        //videoPlayer = findViewById(R.id.video_player);
+        et_rtmp = findViewById(R.id.et_rtmp);
+        et_rtmp_2 = findViewById(R.id.et_rtmp_2);
+        switch_video = findViewById(R.id.switch_video);
+
+        vpVideo = findViewById(R.id.video_player);
 
         btn1 = findViewById(R.id.btn_1);
         btn2 = findViewById(R.id.btn_2);
@@ -87,6 +107,33 @@ public class MainActivity extends AppCompatActivity {
         btn13 = findViewById(R.id.btn_13);
         btn14 = findViewById(R.id.btn_14);
         btn15 = findViewById(R.id.btn_15);
+        btn16 = findViewById(R.id.btn_16);
+
+        vpVideo = findViewById(R.id.vp_video);
+
+
+        View videoViewItem = LayoutInflater.from(MainActivity.this).inflate(R.layout.item_video,null,false);
+        View videoViewItem2 = LayoutInflater.from(MainActivity.this).inflate(R.layout.item_video,null,false);
+
+        videoViewList.add(videoViewItem);
+        videoViewList.add(videoViewItem2);
+
+        switch_video.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) {
+                if(et_rtmp.getText().toString().isEmpty()){
+                    Toast.makeText(MainActivity.this,"请先在设置中设置视频流地址",Toast.LENGTH_SHORT).show();
+                }else{
+                    vpVideo.setVisibility(View.VISIBLE);
+                    videoPagerAdapter = new VideoPagerAdapter(MainActivity.this, videoViewList);
+                    vpVideo.setAdapter(videoPagerAdapter);
+                }
+            } else {
+                vpVideo.setVisibility(View.GONE);
+                videoPagerAdapter.releaseVideo();
+            }
+        });
+
+        ((StandardGSYVideoPlayer)videoViewItem.findViewById(R.id.video_player)).startPlayLogic();
 
         btn1.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -191,6 +238,12 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        btn16.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                sendMsg(Constants.DIRRST);
+            }
+        });
 
         ((androidx.appcompat.widget.Toolbar) findViewById(R.id.toolbar)).setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
             @Override
@@ -213,22 +266,51 @@ public class MainActivity extends AppCompatActivity {
         switchAutoMode.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if (b) {
-                    String autoModeTime = etAutoMode.getText().toString();
-                    sendMsg("automode:true," + autoModeTime);
-                }
+                sendMsg(String.valueOf(b));
             }
         });
 
-        btnTemp.setOnClickListener(new View.OnClickListener() {
+
+
+
+        vpVideo.addOnPageChangeListener(new ViewPager.OnPageChangeListener(){
             @Override
-            public void onClick(View view) {
-                String windTemp = etWind.getText().toString();
-                String waterTemp = etWater.getText().toString();
-                sendMsg("windtemp:" + windTemp);
-                sendMsg("watertemp:" + waterTemp);
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                if(position == 0){
+                    ((StandardGSYVideoPlayer)videoViewItem2.findViewById(R.id.video_player)).onVideoPause();
+                    ((StandardGSYVideoPlayer)videoViewItem.findViewById(R.id.video_player)).startPlayLogic();
+                }else {
+                    ((StandardGSYVideoPlayer)videoViewItem.findViewById(R.id.video_player)).onVideoPause();
+                    ((StandardGSYVideoPlayer)videoViewItem2.findViewById(R.id.video_player)).startPlayLogic();
+                }
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
             }
         });
+
+        btnTemp.setOnClickListener(view -> {
+            String windTemp = etWind.getText().toString();
+            String waterTemp = etWater.getText().toString();
+            String autoTime = etAutoMode.getText().toString();
+            String msg = "autoTime:" + autoTime + " windTemp:" + windTemp + " waterTemp:" + waterTemp;
+            Constants.rtmpAddress_1 = et_rtmp.getText().toString();
+            Constants.rtmpAddress_2 = et_rtmp_2.getText().toString();
+            sendMsg(msg);
+            //sendMsg("autoTime:" + autoTime);
+            //sendMsg("windtemp:" + windTemp);
+            //sendMsg("watertemp:" + waterTemp);
+        });
+
+        //初始化视频播放器
+        //initVideoPlayer();
 
     }
 
@@ -241,47 +323,44 @@ public class MainActivity extends AppCompatActivity {
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public void initSocket() {
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                socket = MyApplication.instance.socket;
-                runOnUiThread(new Runnable() {
+        new Thread(() -> {
+            socket = MyApplication.instance.socket;
+            runOnUiThread(new Runnable() {
 
-                    @Override
-                    public void run() {
-                        //连接成功 指示灯绿色
-                        view_light.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
-                    }
-                });
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        // 步骤3：通过输入流读取器对象 接收服务器发送过来的数据
-                        try {
-                            // 步骤1：创建输入流对象InputStream
-                            is = socket.getInputStream();
-                            // 步骤2：创建输入流读取器对象 并传入输入流对象
-                            // 该对象作用：获取服务器返回的数据
-                            isr = new InputStreamReader(is);
-                            br = new BufferedReader(isr);
-                            while (true) {
-                                final String s = br.readLine();
-                                MainActivity.this.runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        tvNum.setText(s);
-                                        //Toast.makeText(MainActivity.this, s, Toast.LENGTH_SHORT).show();
-                                    }
-                                });
-                            }
-                        } catch (IOException e) {
-                            //连接断开 指示灯红色
-                            view_light.setBackgroundTintList(ColorStateList.valueOf(Color.RED));
-                            e.printStackTrace();
+                @Override
+                public void run() {
+                    //连接成功 指示灯绿色
+                    view_light.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
+                }
+            });
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    // 步骤3：通过输入流读取器对象 接收服务器发送过来的数据
+                    try {
+                        // 步骤1：创建输入流对象InputStream
+                        is = socket.getInputStream();
+                        // 步骤2：创建输入流读取器对象 并传入输入流对象
+                        // 该对象作用：获取服务器返回的数据
+                        isr = new InputStreamReader(is);
+                        br = new BufferedReader(isr);
+                        while (true) {
+                            final String s = br.readLine();
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    tvNumNew.setText(s);
+                                    //Toast.makeText(MainActivity.this, s, Toast.LENGTH_SHORT).show();
+                                }
+                            });
                         }
+                    } catch (IOException e) {
+                        //连接断开 指示灯红色
+                        view_light.setBackgroundTintList(ColorStateList.valueOf(Color.RED));
+                        e.printStackTrace();
                     }
-                }).start();
-            }
+                }
+            }).start();
         }).start();
 
     }
@@ -328,14 +407,14 @@ public class MainActivity extends AppCompatActivity {
         if (clSetting.getVisibility() == View.VISIBLE) {
             clSetting.setVisibility(View.GONE);
         } else {
-                if (System.currentTimeMillis() - quiteTime > 3000) {
-                    Toast.makeText(
-                            this,"再按一次退出", Toast.LENGTH_SHORT
-                    ).show();
-                    quiteTime = System.currentTimeMillis();
-                } else {
-                    finish();
-                }
+            if (System.currentTimeMillis() - quiteTime > 3000) {
+                Toast.makeText(
+                        this, "再按一次退出", Toast.LENGTH_SHORT
+                ).show();
+                quiteTime = System.currentTimeMillis();
+            } else {
+                finish();
+            }
         }
     }
 }
